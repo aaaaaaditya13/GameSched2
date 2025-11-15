@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Results - GameSched</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="container mx-auto p-4">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-green-600 to-blue-600 rounded-lg p-6 mb-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold mb-2">Algorithm Comparison Results</h1>
+                    <p class="text-green-100">Simple comparison of how each algorithm performed</p>
+                </div>
+                <a href="/" class="bg-white text-green-600 px-4 py-2 rounded font-semibold hover:bg-gray-100">
+                    Back to Game
+                </a>
+            </div>
+        </div>
+
+        <!-- Simple Comparison Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- FCFS Card -->
+            <div class="bg-red-900 border border-red-600 rounded-lg p-6">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-red-400 mb-4">FCFS</h3>
+                    <div class="text-4xl font-bold text-white mb-2" id="fcfs-time">--</div>
+                    <div class="text-sm text-red-300">Average Completion Time</div>
+                    <div class="mt-4 p-3 bg-red-800 rounded">
+                        <div class="text-xs text-red-200">
+                            <div>❌ Player gets blocked</div>
+                            <div>❌ Long waiting times</div>
+                            <div>❌ Poor user experience</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Round Robin Card -->
+            <div class="bg-yellow-900 border border-yellow-600 rounded-lg p-6">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-yellow-400 mb-4">Round Robin</h3>
+                    <div class="text-4xl font-bold text-white mb-2" id="rr-time">--</div>
+                    <div class="text-sm text-yellow-300">Average Completion Time</div>
+                    <div class="mt-4 p-3 bg-yellow-800 rounded">
+                        <div class="text-xs text-yellow-200">
+                            <div>⚖️ Fair time sharing</div>
+                            <div>⏱️ Consistent delays</div>
+                            <div>🔄 Regular context switches</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Priority Non-Preemptive Card -->
+            <div class="bg-blue-900 border border-blue-600 rounded-lg p-6">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-blue-400 mb-4">Priority</h3>
+                    <div class="text-4xl font-bold text-white mb-2" id="priority-time">--</div>
+                    <div class="text-sm text-blue-300">Average Completion Time</div>
+                    <div class="mt-4 p-3 bg-blue-800 rounded">
+                        <div class="text-xs text-blue-200">
+                            <div>✅ Player gets priority</div>
+                            <div>⚠️ Can't interrupt enemies</div>
+                            <div>📈 Better than FCFS</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Priority Preemptive Card -->
+            <div class="bg-green-900 border border-green-600 rounded-lg p-6">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-green-400 mb-4">Priority (Preemptive)</h3>
+                    <div class="text-4xl font-bold text-white mb-2" id="priority-p-time">--</div>
+                    <div class="text-sm text-green-300">Average Completion Time</div>
+                    <div class="mt-4 p-3 bg-green-800 rounded">
+                        <div class="text-xs text-green-200">
+                            <div>✅ Best responsiveness</div>
+                            <div>⚡ Can interrupt enemies</div>
+                            <div>🎮 Perfect for gaming</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Winner Section -->
+        <div class="bg-gray-800 rounded-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold mb-4 text-center">🏆 Results Summary</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="text-lg font-semibold text-red-400 mb-2">Worst for Gaming</div>
+                    <div class="text-3xl font-bold" id="worst-algorithm">FCFS</div>
+                    <div class="text-sm text-gray-400">Causes blocking and delays</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-lg font-semibold text-green-400 mb-2">Best for Gaming</div>
+                    <div class="text-3xl font-bold" id="best-algorithm">Priority (Preemptive)</div>
+                    <div class="text-sm text-gray-400">Fastest response time</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-lg font-semibold text-blue-400 mb-2">Most Fair</div>
+                    <div class="text-3xl font-bold" id="fair-algorithm">Round Robin</div>
+                    <div class="text-sm text-gray-400">Equal time for everyone</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Learnings -->
+        <div class="bg-gray-800 rounded-lg p-6">
+            <h2 class="text-2xl font-bold mb-4">🎓 Key Learnings</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-red-400 mb-3">Why FCFS is Bad for Interactive Systems:</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li>• Long processes block short ones (Convoy Effect)</li>
+                        <li>• User input gets delayed by background tasks</li>
+                        <li>• No way to prioritize important processes</li>
+                        <li>• Poor user experience in real-time applications</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-green-400 mb-3">Why Priority Scheduling Works:</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li>• Important processes (user input) get priority</li>
+                        <li>• Preemptive version can interrupt low priority tasks</li>
+                        <li>• Much better responsiveness for interactive systems</li>
+                        <li>• Used in real operating systems and game engines</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        
+        // Request metrics when page loads
+        socket.emit('request_metrics');
+        
+        // Handle metrics updates
+        socket.on('metrics_update', (data) => {
+            updateSimpleResults(data);
+        });
+        
+        function updateSimpleResults(data) {
+            if (!data || !data.comparison) return;
+            
+            const algorithms = {
+                'First Come First Serve': 'fcfs-time',
+                'Round Robin': 'rr-time',
+                'Priority (Non-Preemptive)': 'priority-time',
+                'Priority (Preemptive)': 'priority-p-time'
+            };
+            
+            // Update completion times
+            Object.entries(algorithms).forEach(([algoName, elementId]) => {
+                const stats = data.comparison[algoName];
+                if (stats && stats.turnaround_time > 0) {
+                    document.getElementById(elementId).textContent = (stats.turnaround_time * 1000).toFixed(0) + 'ms';
+                } else {
+                    document.getElementById(elementId).textContent = 'No data';
+                }
+            });
+            
+            // Find best and worst algorithms
+            let bestAlgo = 'Priority (Preemptive)';
+            let worstAlgo = 'First Come First Serve';
+            let bestTime = Infinity;
+            let worstTime = 0;
+            
+            Object.entries(data.comparison).forEach(([algo, stats]) => {
+                if (stats.turnaround_time > 0) {
+                    if (stats.turnaround_time < bestTime) {
+                        bestTime = stats.turnaround_time;
+                        bestAlgo = algo;
+                    }
+                    if (stats.turnaround_time > worstTime) {
+                        worstTime = stats.turnaround_time;
+                        worstAlgo = algo;
+                    }
+                }
+            });
+            
+            document.getElementById('best-algorithm').textContent = bestAlgo.split(' ')[0];
+            document.getElementById('worst-algorithm').textContent = worstAlgo.split(' ')[0];
+        }
+    </script>
+</body>
+</html>

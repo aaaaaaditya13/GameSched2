@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameSched: CPU Scheduling Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="container mx-auto p-4">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 mb-4">
+            <h1 class="text-3xl font-bold mb-2">GameSched</h1>
+            <p class="text-blue-100">Experience how different scheduling algorithms affect real-time game performance</p>
+        </div>
+        
+
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Game Canvas -->
+            <div class="lg:col-span-2">
+                <div class="bg-gray-800 rounded-lg p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold">Game Window</h2>
+                        <div class="space-x-2">
+                            <button id="startBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Start</button>
+                            <button id="pauseBtn" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded">Pause</button>
+                            <button id="resetBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">Reset</button>
+                            <a href="/analytics" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded inline-block">Analytics</a>
+                            <a href="/tutorial" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded inline-block">Tutorial</a>
+
+                        </div>
+                    </div>
+                    <canvas id="gameCanvas" width="800" height="400" class="border border-gray-600 bg-gray-700 rounded"></canvas>
+                    
+                    <!-- OS Status Panel -->
+                    <div class="mt-4 bg-blue-900 rounded p-4 border-l-4 border-blue-400">
+                        <div class="flex items-center mb-2">
+                            <span class="text-blue-400 font-bold">🖥️ OS Scheduler:</span>
+                            <span id="currentAction" class="ml-2 text-white font-semibold">Initializing...</span>
+                        </div>
+                        <div id="schedulerMessage" class="text-blue-100 text-sm">
+                            The Operating System is starting up. Processes will be scheduled based on the selected algorithm.
+                        </div>
+                    </div>
+                    
+                    <!-- Controls -->
+                    <div class="mt-4 grid grid-cols-2 gap-4">
+                        <div class="bg-gray-700 p-3 rounded">
+                            <h3 class="font-semibold mb-2">Controls</h3>
+                            <div class="text-sm space-y-1">
+                                <div>WASD - Move Player Process</div>
+                                <div>Space - Pause/Resume</div>
+                                <div>Use dropdown to select algorithm</div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-700 p-3 rounded">
+                            <h3 class="font-semibold mb-2">Game Rules</h3>
+                            <div class="text-sm">
+                                <div class="text-green-400">• 😊 Player vs 💀 Enemies</div>
+                                <div class="text-cyan-400">• Collect 🔑 keys and unlock 🔒 locks to finish</div>
+                                <div class="text-red-400">• Avoid 💀💀 skeleton enemies moving vertically</div>
+                                <div class="text-yellow-400">• ⚡ Powerups give highest priority</div>
+                                <div class="text-blue-400">• 3 lives - lose one per collision</div>
+                                <div class="text-purple-400">• Switch algorithms to dodge enemies</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Panel -->
+            <div class="space-y-6">
+                <!-- Algorithm Selector -->
+                <div class="bg-gray-800 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold mb-3">CPU Scheduling Algorithm</h3>
+                    <select id="algorithmSelect" class="w-full bg-gray-700 text-white p-3 rounded mb-3 border border-gray-600 font-semibold">
+                        <option value="0">First Come First Serve (FCFS)</option>
+                        <option value="1">Round Robin (RR)</option>
+                        <option value="2">Shortest Job First (SJF)</option>
+                        <option value="3">Priority (Non-Preemptive)</option>
+                        <option value="4">Priority (Preemptive)</option>
+                    </select>
+                    <div id="algorithmEffects" class="text-sm text-gray-300 bg-gray-700 p-3 rounded">
+                        <div>• Player may lag behind enemies</div>
+                        <div>• Convoy effect visible</div>
+                        <div>• Unpredictable response</div>
+                    </div>
+                </div>
+
+                <!-- Process Queue -->
+                <div class="bg-gray-800 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold mb-3">Process Ready Queue</h3>
+                    <div id="processQueue" class="space-y-2 max-h-64 overflow-y-auto">
+                        <div class="text-center text-gray-400 py-4">
+                            <div>No processes in queue</div>
+                            <div class="text-xs">Click Start to begin</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="bg-gray-800 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold mb-3">System Metrics</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span>Game Time:</span>
+                            <span id="gameTime" class="text-green-400">0.0s</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Attempts:</span>
+                            <span id="attempts" class="text-blue-400">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Active Processes:</span>
+                            <span id="activeProcesses" class="text-yellow-400">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Completed:</span>
+                            <span id="completedProcesses" class="text-purple-400">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Context Switches:</span>
+                            <span id="contextSwitches" class="text-red-400">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Analytics -->
+                <div class="bg-gray-800 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold mb-3">Performance Analytics</h3>
+                    <canvas id="performanceChart" width="300" height="200"></canvas>
+                    <div class="mt-4 text-xs text-gray-400">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>🔴 FCFS: Worst performance</div>
+                            <div>🟡 RR: Fair but slower</div>
+                            <div>🟢 Priority: Better response</div>
+                            <div>🟣 Priority(P): Best for gaming</div>
+                        </div>
+                        <div class="mt-2 text-center">
+                            Lower bars = Better performance
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Real-time Stats -->
+                <div class="bg-gray-800 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold mb-3">Current Algorithm Stats</h3>
+                    <div id="currentStats" class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span>Avg Waiting Time:</span>
+                            <span id="currentWaitTime" class="text-yellow-400">0ms</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Throughput:</span>
+                            <span id="currentThroughput" class="text-blue-400">0/s</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Efficiency:</span>
+                            <span id="currentEfficiency" class="text-green-400">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Real-Time Process Metrics Table -->
+        <div class="bg-gray-800 rounded-lg p-4 mt-6">
+            <h2 class="text-xl font-bold mb-3 flex items-center">
+                <span class="text-2xl mr-2">📊</span>
+                Real-Time Process Metrics - Waiting Time, Burst Time, Turnaround Time
+                <span class="ml-3 text-sm font-normal text-gray-400">(Last 10 completed)</span>
+            </h2>
+            <div class="overflow-x-auto">
+                <table id="processTable" class="w-full text-sm border border-gray-700">
+                    <thead class="bg-gray-700">
+                        <tr>
+                            <th class="px-3 py-2 text-left border-r border-gray-600">PID</th>
+                            <th class="px-3 py-2 text-left border-r border-gray-600">Type</th>
+                            <th class="px-3 py-2 text-left border-r border-gray-600">Task</th>
+                            <th class="px-3 py-2 text-left border-r border-gray-600">Priority</th>
+                            <th class="px-3 py-2 text-left border-r border-gray-600">Arrival (s)</th>
+                            <th class="px-3 py-2 text-left border-r border-gray-600 bg-blue-900">Burst (s)</th>
+                            <th class="px-3 py-2 text-left border-r border-gray-600">Complete (s)</th>
+                            <th class="px-3 py-2 text-left border-r border-gray-600 bg-purple-900">Turnaround (s)</th>
+                            <th class="px-3 py-2 text-left bg-yellow-900">Waiting (s)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="processTableBody" class="divide-y divide-gray-700">
+                        <tr>
+                            <td colspan="9" class="px-4 py-6 text-center text-gray-400">
+                                No completed processes yet. Click Start to begin.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/game.js"></script>
+</body>
+</html>

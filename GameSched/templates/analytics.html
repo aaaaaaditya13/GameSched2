@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - GameSched</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="container mx-auto p-4">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg p-6 mb-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold mb-2">Analytics Dashboard</h1>
+                    <p class="text-purple-100">Performance metrics and algorithm comparison</p>
+                </div>
+                <a href="/" class="bg-white text-purple-600 px-4 py-2 rounded font-semibold hover:bg-gray-100">
+                    Back to Game
+                </a>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-gray-800 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-green-400" id="totalProcesses">0</div>
+                <div class="text-sm text-gray-400">Total Processes</div>
+            </div>
+            <div class="bg-gray-800 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-blue-400" id="contextSwitches">0</div>
+                <div class="text-sm text-gray-400">Context Switches</div>
+            </div>
+            <div class="bg-gray-800 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-yellow-400" id="avgFPS">0</div>
+                <div class="text-sm text-gray-400">Average FPS</div>
+            </div>
+            <div class="bg-gray-800 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-purple-400" id="bestAlgorithm">-</div>
+                <div class="text-sm text-gray-400">Best Algorithm</div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Algorithm Comparison -->
+            <div class="bg-gray-800 rounded-lg p-4">
+                <h3 class="text-lg font-semibold mb-4">Algorithm Performance</h3>
+                <canvas id="performanceChart" width="400" height="300"></canvas>
+            </div>
+
+            <!-- FPS Monitor -->
+            <div class="bg-gray-800 rounded-lg p-4">
+                <h3 class="text-lg font-semibold mb-4">FPS Performance</h3>
+                <canvas id="fpsChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Detailed Metrics -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Waiting Time Analysis -->
+            <div class="bg-gray-800 rounded-lg p-4">
+                <h3 class="text-lg font-semibold mb-4">Waiting Time Analysis</h3>
+                <canvas id="waitingTimeChart" width="400" height="300"></canvas>
+            </div>
+
+            <!-- Throughput Analysis -->
+            <div class="bg-gray-800 rounded-lg p-4">
+                <h3 class="text-lg font-semibold mb-4">Throughput Comparison</h3>
+                <canvas id="throughputChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Gantt Chart -->
+        <div class="bg-gray-800 rounded-lg p-4 mb-6">
+            <h3 class="text-lg font-semibold mb-4">Process Execution Timeline (Gantt Chart)</h3>
+            <div id="ganttChart" class="overflow-x-auto">
+                <div class="min-w-full h-64 bg-gray-700 rounded flex items-center justify-center">
+                    <span class="text-gray-400">Process execution timeline will appear here</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Algorithm Details Table -->
+        <div class="bg-gray-800 rounded-lg p-4">
+            <h3 class="text-lg font-semibold mb-4">Detailed Algorithm Statistics</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-600">
+                            <th class="text-left p-2">Algorithm</th>
+                            <th class="text-left p-2">Avg Waiting Time</th>
+                            <th class="text-left p-2">Avg Turnaround Time</th>
+                            <th class="text-left p-2">Avg Response Time</th>
+                            <th class="text-left p-2">Throughput</th>
+                            <th class="text-left p-2">Processes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statsTable">
+                        <!-- Statistics will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/analytics.js"></script>
+</body>
+</html>

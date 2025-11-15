@@ -1,0 +1,6 @@
+{
+  "editor.fontSize": 18,
+  "editor.formatOnSave": true,
+  "workbench.colorTheme": "Dark Chai",
+  "terminal.integrated.fontSize": 18
+}
