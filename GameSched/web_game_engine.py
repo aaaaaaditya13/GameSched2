@@ -1,5 +1,7 @@
 import random
 import time
+import json
+import os
 from dataclasses import dataclass
 from typing import List, Dict, Any
 
@@ -162,6 +164,8 @@ class WebLineCrossingGame:
         self.boss_level = False
         self.boss_enemy = None
         self.boss_required_algorithm = None
+        self.level_start_time = 0
+        self.high_scores = self.load_high_scores()
         
         self.player = WebEntity(self.start_line_x, 200, 'player', priority=1)
         
@@ -255,6 +259,29 @@ class WebLineCrossingGame:
                 enemy.speed = random.uniform(2, 4) * enemy_speed_multiplier
                 self.enemies.append(enemy)
     
+    def load_high_scores(self):
+        try:
+            with open('high_scores.json', 'r') as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return {}
+    
+    def save_high_scores(self):
+        with open('high_scores.json', 'w') as f:
+            json.dump(self.high_scores, f, indent=2)
+    
+    def update_high_score(self, level, time_taken, algorithm):
+        level_key = f"level_{level}"
+        if level_key not in self.high_scores:
+            self.high_scores[level_key] = {'time': float('inf'), 'algorithm': None}
+        
+        if time_taken < self.high_scores[level_key]['time']:
+            self.high_scores[level_key]['time'] = time_taken
+            self.high_scores[level_key]['algorithm'] = algorithm
+            self.save_high_scores()
+            return True
+        return False
+    
     def set_process_speed(self, speed):
         self.process_speed = speed
     
@@ -271,6 +298,7 @@ class WebLineCrossingGame:
         self.game_won = False
         self.game_over = False
         self.game_time = 0
+        self.level_start_time = time.time()
         self.lives = max(1, 4 - self.level)
         
         self.reset_positions()
@@ -438,6 +466,10 @@ class WebLineCrossingGame:
             all_locks_opened = len(self.locks) == 0
             
             if all_locks_opened and boss_defeated:
+                level_time = time.time() - self.level_start_time
+                current_algorithm = self.scheduler.scheduler['name']
+                is_new_record = self.update_high_score(self.level, level_time, current_algorithm)
+                
                 if self.level < self.max_level:
                     self.level += 1
                     self.reset_game()
@@ -537,7 +569,9 @@ class WebLineCrossingGame:
                 'level': self.level,
                 'max_level': self.max_level,
                 'boss_level': self.boss_level,
-                'boss_required_algorithm': self.boss_required_algorithm
+                'boss_required_algorithm': self.boss_required_algorithm,
+                'high_scores': self.high_scores,
+                'current_level_time': time.time() - self.level_start_time if hasattr(self, 'level_start_time') else 0
             },
             'processes': self._get_process_queue_display(),
             'performance_data': self._get_performance_data(),

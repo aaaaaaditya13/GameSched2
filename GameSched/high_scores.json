@@ -1,0 +1,10 @@
+{
+  "level_1": {
+    "time": 1763233535.6621366,
+    "algorithm": "First Come First Serve"
+  },
+  "level_2": {
+    "time": 12.590757846832275,
+    "algorithm": "First Come First Serve"
+  }
+}

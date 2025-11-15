@@ -112,6 +112,9 @@ function updateUI() {
     
     // Update process table
     updateProcessTable();
+    
+    // Update high scores
+    updateHighScores();
 }
 
 function updateProcessQueue() {
@@ -360,7 +363,7 @@ function drawGame() {
     
     if (gameState.player.has_powerup) {
         ctx.fillStyle = '#FFD700';
-        ctx.fillText(`⚡ POWERUP: ${gameState.game.powerup_time.toFixed(1)}s`, 10, 90);
+        ctx.fillText(`⚡ POWERUP: ${gameState.game.powerup_time.toFixed(1)}s`, 10, 130);
     }
     
     // Draw win message
@@ -375,8 +378,20 @@ function drawGame() {
         
         ctx.fillStyle = '#FFFFFF';
         ctx.font = '18px Arial';
-        ctx.fillText(`Time: ${gameState.game.time.toFixed(1)}s`, canvas.width/2, 220);
-        ctx.fillText(`Algorithm: ${gameState.scheduler.name}`, canvas.width/2, 250);
+        ctx.fillText(`Level ${gameState.game.level} Complete!`, canvas.width/2, 200);
+        ctx.fillText(`Time: ${gameState.game.current_level_time.toFixed(1)}s`, canvas.width/2, 230);
+        ctx.fillText(`Algorithm: ${gameState.scheduler.name}`, canvas.width/2, 260);
+        
+        // Show if new record
+        const currentLevelKey = `level_${gameState.game.level}`;
+        if (gameState.game.high_scores && gameState.game.high_scores[currentLevelKey]) {
+            const bestTime = gameState.game.high_scores[currentLevelKey].time;
+            if (gameState.game.current_level_time <= bestTime + 0.1) {
+                ctx.fillStyle = '#FFD700';
+                ctx.font = 'bold 20px Arial';
+                ctx.fillText('NEW RECORD!', canvas.width/2, 290);
+            }
+        }
         
         ctx.textAlign = 'left';
     }
@@ -499,6 +514,48 @@ function updateCurrentStats() {
         const efficiency = maxWaitTime > 0 ? ((maxWaitTime - stats.avg_waiting_time) / maxWaitTime * 100) : 100;
         document.getElementById('currentEfficiency').textContent = efficiency.toFixed(1) + '%';
     }
+}
+
+function updateHighScores() {
+    if (!gameState?.game?.high_scores) return;
+    
+    const highScoresDiv = document.getElementById('highScores');
+    const scores = gameState.game.high_scores;
+    
+    if (Object.keys(scores).length === 0) {
+        highScoresDiv.innerHTML = '<div class="text-center text-gray-400 py-2">Complete levels to set records!</div>';
+        return;
+    }
+    
+    let html = '';
+    for (let i = 1; i <= 5; i++) {
+        const levelKey = `level_${i}`;
+        if (scores[levelKey] && scores[levelKey].time !== Infinity) {
+            const time = scores[levelKey].time.toFixed(1);
+            const algo = scores[levelKey].algorithm;
+            const isCurrentLevel = i === gameState.game.level;
+            
+            html += `
+                <div class="flex justify-between items-center py-1 ${isCurrentLevel ? 'bg-blue-900 px-2 rounded' : ''}">
+                    <span class="${isCurrentLevel ? 'text-yellow-400 font-bold' : 'text-gray-300'}">Level ${i}:</span>
+                    <div class="text-right">
+                        <div class="${isCurrentLevel ? 'text-white font-bold' : 'text-green-400'}">${time}s</div>
+                        <div class="text-xs text-gray-400">${algo}</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            const isCurrentLevel = i === gameState.game.level;
+            html += `
+                <div class="flex justify-between items-center py-1 ${isCurrentLevel ? 'bg-blue-900 px-2 rounded' : ''}">
+                    <span class="${isCurrentLevel ? 'text-yellow-400 font-bold' : 'text-gray-500'}">Level ${i}:</span>
+                    <span class="text-gray-500">Not completed</span>
+                </div>
+            `;
+        }
+    }
+    
+    highScoresDiv.innerHTML = html;
 }
 
 function updateProcessTable() {
