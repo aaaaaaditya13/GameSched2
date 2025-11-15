@@ -1,18 +1,11 @@
-# Line Crossing - CPU Scheduling Game
+# GameSched - CPU Scheduling Visualizer
 
-A game that demonstrates how CPU scheduling algorithms affect real-time performance through a simple line-crossing challenge.
+A web-based game that demonstrates how CPU scheduling algorithms affect real-time performance through an interactive challenge.
 
 ## Quick Start
 
-**Web Version (Recommended):**
 ```bash
 python run_web.py       # Auto-installs dependencies and opens browser
-```
-
-**Desktop Version:**
-```bash
-pip install pygame>=2.6.0
-python main.py
 ```
 
 ## Game Objective
@@ -59,58 +52,41 @@ python main.py
 ## Installation
 
 ### Requirements
-- Python 3.7-3.12 (Desktop version)
-- Python 3.7+ (Web version)
+- Python 3.7+
 - 4GB RAM minimum
 
 ### Install Dependencies
 
-**For Web Version Only:**
+```bash
+pip install -r requirements.txt
+```
+
+Or manually:
 ```bash
 pip install flask flask-socketio python-socketio
 ```
 
-**For Desktop Version:**
-```bash
-pip install pygame>=2.6.0
-```
-
-**Note:** Python 3.13 users should use web version or install pygame from wheel.
-
-### Run Desktop Version (Pygame)
-```bash
-python main.py
-```
-
-### Run Web Version (Flask)
+### Run the Application
 ```bash
 python run_web.py
 ```
 Opens browser at http://localhost:5000
 
-### Run Tests
-```bash
-python test_game.py
-```
-
 ## Project Structure
 
 ```
-Game/
-├── main.py                  # Pygame entry point
-├── run_web.py              # Web version entry point
-├── line_crossing_game.py   # Core game logic
-├── game_scheduler.py       # Scheduling algorithms
-├── game_entity.py          # Player and enemy entities
-├── process.py              # Process class
-├── fcfs.py                 # FCFS algorithm
-├── round_robin.py          # Round Robin algorithm
-├── priority.py             # Priority scheduling
-├── web_game_engine.py      # Web version game engine
-├── web_server.py           # Flask server
-├── metrics_engine.py       # Performance metrics
+GameSched/
+├── run_web.py              # Application entry point
+├── web_game_engine.py      # Game engine with scheduling logic
+├── web_server.py           # Flask server with WebSocket support
+├── requirements.txt        # Python dependencies
 ├── templates/              # HTML templates
-└── static/                 # CSS/JS files
+│   ├── index.html         # Main game interface
+│   ├── analytics.html     # Performance dashboard
+│   └── tutorial.html      # Educational tutorial
+└── static/                 # JavaScript files
+    ├── game.js            # Game rendering and controls
+    └── analytics.js       # Analytics visualization
 ```
 
 ## Learning Objectives
@@ -147,25 +123,8 @@ Game/
 - ✓ Performance metrics (waiting time, FPS, throughput)
 - ✓ Enhanced visuals and UI
 - ✓ Web interface with analytics
-- ✓ Documentation and tests
+- ✓ Documentation
 - ✓ Tutorial system
-
-## Bug Fixes Applied
-
-### Critical Fixes
-1. **Process ID Collision** - Added proper ID counter
-2. **Player Movement Override** - Check blocked state before movement
-3. **Incomplete State Reset** - Reset all scheduler and entity states
-
-### Other Fixes
-4. Entity reset bug - Reset last_update and blocked state
-5. FCFS queue calculation - Added entity attribute checks
-6. Web server attribute access - Fixed scheduler.name access
-7. Duplicate dependency - Removed duplicate pygame entry
-8. Missing scheduler attributes - Added running_process initialization
-9. Position reset logic - Update enemy start positions
-
-All tests passing (5/5) ✅
 
 ## Performance Metrics
 
@@ -212,20 +171,9 @@ The game tracks and displays:
 
 ## Troubleshooting
 
-### Pygame won't start
-```bash
-pip install --upgrade pygame
-```
-
-### Web version won't start
+### Application won't start
 ```bash
 pip install --upgrade flask flask-socketio python-socketio
-```
-
-### Import errors
-```bash
-cd d:\Game
-python main.py
 ```
 
 ### Port 5000 in use
@@ -262,7 +210,6 @@ Students will understand:
 
 ## Dependencies
 
-- `pygame>=2.6.0` - Desktop game engine (optional)
 - `flask==2.3.3` - Web framework
 - `flask-socketio==5.3.6` - Real-time communication
 - `python-socketio==5.8.0` - WebSocket support
@@ -284,10 +231,9 @@ Educational use for computer science curricula, particularly Operating Systems a
 
 - Chart.js for visualization
 - Tailwind CSS for UI design
-- Flask community
-- Pygame community
+- Flask and Socket.IO communities
 - Educational institutions for feedback
 
 ---
 
-**Status**: ✅ Production Ready | **Tests**: 5/5 Passing | **Bugs Fixed**: 9/9
+**Status**: ✅ Production Ready | **Version**: Web-Only

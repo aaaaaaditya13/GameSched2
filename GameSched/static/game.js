@@ -107,9 +107,6 @@ function updateUI() {
     // Update process queue
     updateProcessQueue();
     
-    // Update performance chart
-    updatePerformanceChart();
-    
     // Update current algorithm stats
     updateCurrentStats();
     
@@ -267,7 +264,7 @@ function drawGame() {
     ctx.fillText('START', gameState.game.start_line_x - 15, 370);
     
     // Draw finish line
-    const allLocksUnlocked = gameState.locks && gameState.locks.every(lock => lock.unlocked);
+    const allLocksUnlocked = gameState.locks && gameState.locks.length === 0;
     ctx.strokeStyle = allLocksUnlocked ? '#10B981' : '#6B7280';
     ctx.lineWidth = 4;
     ctx.beginPath();
@@ -279,17 +276,28 @@ function drawGame() {
     ctx.font = '14px Arial';
     ctx.fillText(allLocksUnlocked ? 'FINISH' : 'UNLOCK ALL LOCKS', gameState.game.finish_line_x - 35, 370);
     
-    // Draw CPU scheduler indicator
+    // Draw level and CPU scheduler indicator
     ctx.fillStyle = '#8B5CF6';
     ctx.font = '12px Arial';
-    ctx.fillText(`CPU SCHEDULER: ${gameState.scheduler.name}`, 10, 25);
+    ctx.fillText(`LEVEL ${gameState.game.level}/${gameState.game.max_level} - CPU SCHEDULER: ${gameState.scheduler.name}`, 10, 25);
+    
+    // Draw boss info if boss level
+    if (gameState.game.boss_level && gameState.game.boss_required_algorithm) {
+        ctx.fillStyle = '#FF4444';
+        ctx.font = '14px Arial';
+        ctx.fillText(`BOSS LEVEL! Use ${gameState.game.boss_required_algorithm} to defeat boss`, 10, 45);
+    }
     
     // Draw player
     drawEntity(gameState.player, '#10B981', 'USER');
     
     // Draw enemies
     gameState.enemies.forEach((enemy, index) => {
-        drawEntity(enemy, '#EF4444', `BG${index + 1}`);
+        if (enemy.is_boss) {
+            drawBossEntity(enemy);
+        } else {
+            drawEntity(enemy, '#EF4444', `BG${index + 1}`);
+        }
     });
     
     // Draw powerups
@@ -297,46 +305,43 @@ function drawGame() {
         gameState.powerups.forEach((powerup, index) => {
             ctx.fillStyle = '#FFD700';
             ctx.beginPath();
-            ctx.arc(powerup.x, powerup.y, 12, 0, 2 * Math.PI);
+            ctx.arc(powerup.x, powerup.y, 18, 0, 2 * Math.PI);
             ctx.fill();
             
-            ctx.fillStyle = '#000000';
-            ctx.font = '12px Arial';
-            ctx.fillText('⚡', powerup.x - 6, powerup.y + 4);
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#8A2BE2'];
+            ctx.fillStyle = colors[index % colors.length];
+            ctx.font = '20px Arial';
+            ctx.fillText('⚡', powerup.x - 10, powerup.y + 7);
         });
     }
     
     // Draw keys
     if (gameState.keys) {
         gameState.keys.forEach((key, index) => {
-            const keyColors = ['#FF0000', '#00FF00', '#0000FF'];
-            ctx.fillStyle = keyColors[key.key_id] || '#00FFFF';
+            ctx.fillStyle = '#000000';
             ctx.beginPath();
-            ctx.arc(key.x, key.y, 10, 0, 2 * Math.PI);
+            ctx.arc(key.x, key.y, 15, 0, 2 * Math.PI);
             ctx.fill();
             
-            ctx.fillStyle = '#000000';
-            ctx.font = '12px Arial';
-            ctx.fillText('🔑', key.x - 6, key.y + 4);
+            const keyColors = ['#FFD700', '#FF69B4', '#00FF7F'];
+            ctx.fillStyle = keyColors[index % keyColors.length];
+            ctx.font = '18px Arial';
+            ctx.fillText('🔑', key.x - 9, key.y + 6);
         });
     }
     
     // Draw locks
     if (gameState.locks) {
         gameState.locks.forEach((lock, index) => {
-            const lockColors = ['#FF0000', '#00FF00', '#0000FF'];
-            ctx.fillStyle = lockColors[lock.lock_id] || '#888888';
+            ctx.fillStyle = '#000000';
             ctx.beginPath();
-            ctx.arc(lock.x, lock.y, 15, 0, 2 * Math.PI);
+            ctx.arc(lock.x, lock.y, 20, 0, 2 * Math.PI);
             ctx.fill();
             
-            ctx.fillStyle = '#000000';
-            ctx.font = '16px Arial';
-            if (lock.unlocked) {
-                ctx.fillText('🔓', lock.x - 8, lock.y + 6);
-            } else {
-                ctx.fillText('🔒', lock.x - 8, lock.y + 6);
-            }
+            const lockColors = ['#8B4513', '#DC143C', '#4B0082'];
+            ctx.fillStyle = lockColors[index % lockColors.length];
+            ctx.font = '22px Arial';
+            ctx.fillText('🔒', lock.x - 11, lock.y + 8);
         });
     }
     
@@ -351,7 +356,7 @@ function drawGame() {
     }
     
     ctx.fillStyle = '#00FFFF';
-    ctx.fillText(`Keys: ${gameState.game.keys_collected}/${gameState.game.total_keys}`, 10, 70);
+    ctx.fillText(`Keys: ${gameState.game.keys_collected}/3`, 10, 70);
     
     if (gameState.player.has_powerup) {
         ctx.fillStyle = '#FFD700';
@@ -441,48 +446,44 @@ function drawEntity(entity, color, label) {
     ctx.textAlign = 'left';
 }
 
-// Initialize performance chart
-const chartCtx = document.getElementById('performanceChart').getContext('2d');
-const performanceChart = new Chart(chartCtx, {
-    type: 'bar',
-    data: {
-        labels: ['FCFS', 'RR', 'SJF', 'Priority', 'Priority (P)'],
-        datasets: [{
-            label: 'Avg Waiting Time (ms)',
-            data: [0, 0, 0, 0, 0],
-            backgroundColor: ['#EF4444', '#F59E0B', '#06B6D4', '#10B981', '#8B5CF6'],
-            borderColor: ['#DC2626', '#D97706', '#0891B2', '#059669', '#7C3AED'],
-            borderWidth: 2
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { labels: { color: '#E5E7EB' } }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: { color: '#E5E7EB' },
-                grid: { color: '#374151' }
-            },
-            x: {
-                ticks: { color: '#E5E7EB' },
-                grid: { color: '#374151' }
-            }
-        }
+function drawBossEntity(enemy) {
+    ctx.font = '50px Arial';
+    ctx.textAlign = 'center';
+    
+    // Draw boss with different appearance
+    ctx.fillText('👹', enemy.x, enemy.y + 15);
+    
+    // Draw larger process state indicator for boss
+    if (enemy.blocked) {
+        ctx.strokeStyle = '#FCD34D';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.arc(enemy.x, enemy.y, 35, 0, 2 * Math.PI);
+        ctx.stroke();
+        
+        ctx.fillStyle = '#FCD34D';
+        ctx.font = '12px Arial';
+        ctx.fillText('BOSS WAITING', enemy.x, enemy.y - 45);
+    } else {
+        ctx.strokeStyle = '#FF4444';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.arc(enemy.x, enemy.y, 32, 0, 2 * Math.PI);
+        ctx.stroke();
+        
+        ctx.fillStyle = '#FF4444';
+        ctx.font = '12px Arial';
+        ctx.fillText('BOSS ACTIVE', enemy.x, enemy.y - 45);
     }
-});
-
-function updatePerformanceChart() {
-    if (!gameState?.performance_data) return;
     
-    const algorithms = ['First Come First Serve', 'Round Robin', 'Shortest Job First', 'Priority (Non-Preemptive)', 'Priority (Preemptive)'];
-    const waitingTimes = algorithms.map(algo => gameState.performance_data[algo]?.avg_waiting_time || 0);
+    ctx.fillStyle = '#FF4444';
+    ctx.font = '10px Arial';
+    ctx.fillText('P2', enemy.x, enemy.y + 45);
     
-    performanceChart.data.datasets[0].data = waitingTimes;
-    performanceChart.update('none');
+    ctx.textAlign = 'left';
 }
+
+
 
 function updateCurrentStats() {
     if (!gameState?.performance_data || !gameState?.scheduler?.name) return;

@@ -31,10 +31,6 @@ game_controller = WebGameController()
 def index():
     return render_template('index.html')
 
-@app.route('/analytics')
-def analytics():
-    return render_template('analytics.html')
-
 @app.route('/tutorial')
 def tutorial():
     return render_template('tutorial.html')

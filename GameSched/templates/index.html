@@ -28,9 +28,7 @@
                             <button id="startBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Start</button>
                             <button id="pauseBtn" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded">Pause</button>
                             <button id="resetBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">Reset</button>
-                            <a href="/analytics" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded inline-block">Analytics</a>
                             <a href="/tutorial" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded inline-block">Tutorial</a>
-
                         </div>
                     </div>
                     <canvas id="gameCanvas" width="800" height="400" class="border border-gray-600 bg-gray-700 rounded"></canvas>
@@ -128,23 +126,6 @@
                     </div>
                 </div>
 
-                <!-- Performance Analytics -->
-                <div class="bg-gray-800 rounded-lg p-4">
-                    <h3 class="text-lg font-semibold mb-3">Performance Analytics</h3>
-                    <canvas id="performanceChart" width="300" height="200"></canvas>
-                    <div class="mt-4 text-xs text-gray-400">
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>🔴 FCFS: Worst performance</div>
-                            <div>🟡 RR: Fair but slower</div>
-                            <div>🟢 Priority: Better response</div>
-                            <div>🟣 Priority(P): Best for gaming</div>
-                        </div>
-                        <div class="mt-2 text-center">
-                            Lower bars = Better performance
-                        </div>
-                    </div>
-                </div>
-                
                 <!-- Real-time Stats -->
                 <div class="bg-gray-800 rounded-lg p-4">
                     <h3 class="text-lg font-semibold mb-3">Current Algorithm Stats</h3>
