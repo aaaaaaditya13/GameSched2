@@ -12,8 +12,8 @@
         <div class="bg-gradient-to-r from-green-600 to-blue-600 rounded-lg p-6 mb-6">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-3xl font-bold mb-2">CPU Scheduling Tutorial</h1>
-                    <p class="text-green-100">Learn how different scheduling algorithms work</p>
+                    <h1 class="text-3xl font-bold mb-2">GameSched Tutorial</h1>
+                    <p class="text-green-100">Learn CPU scheduling through interactive gameplay</p>
                 </div>
                 <a href="/" class="bg-white text-green-600 px-4 py-2 rounded font-semibold hover:bg-gray-100">
                     Back to Game
@@ -21,115 +21,168 @@
             </div>
         </div>
 
+        <!-- Game Overview -->
+        <div class="bg-gray-800 rounded-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-blue-400 mb-4">🎮 Game Overview</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Objective:</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>• Navigate from start line to finish line</li>
+                        <li>• Collect 3 keys to unlock 3 locks</li>
+                        <li>• Avoid enemies (red circles)</li>
+                        <li>• Defeat bosses with matching swords (hard/super hard)</li>
+                        <li>• Experience different CPU scheduling algorithms</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Controls:</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>• <kbd class="bg-gray-600 px-2 py-1 rounded">WASD</kbd> or Arrow Keys to move</li>
+                        <li>• Movement only works when it's your turn!</li>
+                        <li>• Watch the process queue to see whose turn it is</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Core Mechanics -->
+        <div class="bg-gray-800 rounded-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-purple-400 mb-4">⚙️ Core Game Mechanics</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Process Scheduling:</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>• <strong>You and enemies are processes</strong></li>
+                        <li>• Each gets equal time slices based on difficulty:</li>
+                        <li class="ml-4">- Easy: 2.9 seconds per turn</li>
+                        <li class="ml-4">- Normal: 1.9 seconds per turn</li>
+                        <li class="ml-4">- Hard/Super Hard: 1.0 second per turn</li>
+                        <li>• Only the currently scheduled process can move</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Algorithm Rules:</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>• <strong>FCFS is the default algorithm</strong></li>
+                        <li>• Power-ups change algorithm for 3 seconds only</li>
+                        <li>• Dropdown selections also last 3 seconds only</li>
+                        <li>• After 3 seconds, reverts back to FCFS</li>
+                        <li>• Timer shows remaining algorithm time</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <!-- Tutorial Steps -->
         <div class="space-y-6">
             <!-- Step 1: FCFS -->
             <div class="bg-gray-800 rounded-lg p-6">
-                <h2 class="text-2xl font-bold text-red-400 mb-4">1. First Come First Serve (FCFS)</h2>
+                <h2 class="text-2xl font-bold text-red-400 mb-4">1. First Come First Serve (FCFS) - Default Algorithm</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
                         <h3 class="text-lg font-semibold mb-3">How it Works:</h3>
                         <ul class="space-y-2 text-gray-300">
                             <li>• Processes execute in arrival order</li>
                             <li>• Non-preemptive - no interruptions</li>
-                            <li>• Simple but inefficient</li>
-                            <li>• Causes "convoy effect"</li>
+                            <li>• Each entity gets their full time slice</li>
+                            <li>• Fair but can feel slow</li>
                         </ul>
                         <div class="mt-4 p-3 bg-red-900 rounded">
-                            <strong>Gaming Impact:</strong> Player input may lag behind enemy AI if enemies arrive first
+                            <strong>Gaming Impact:</strong> Turn-based movement - wait for your turn to move
                         </div>
                     </div>
                     <div class="bg-gray-700 p-4 rounded">
-                        <h4 class="font-semibold mb-2">What You'll See:</h4>
+                        <h4 class="font-semibold mb-2">What You'll Experience:</h4>
                         <div class="space-y-2">
-                            <div class="text-sm text-red-400">• All entities start at same position</div>
-                            <div class="text-sm text-red-400">• Enemies get CPU first (arrive first)</div>
-                            <div class="text-sm text-red-400">• Player COMPLETELY BLOCKED (yellow ring)</div>
-                            <div class="text-sm text-red-400">• Player can't move until ALL enemies finish</div>
-                            <div class="text-sm text-green-400">• Finally player gets CPU and moves</div>
+                            <div class="text-sm text-red-400">• Player and enemies take turns</div>
+                            <div class="text-sm text-red-400">• Each gets their full time slice</div>
+                            <div class="text-sm text-yellow-400">• Movement blocked when not your turn</div>
+                            <div class="text-sm text-green-400">• Predictable turn order</div>
                         </div>
-                        <p class="text-xs text-gray-400 mt-2">This is why FCFS is terrible for interactive systems!</p>
+                        <p class="text-xs text-gray-400 mt-2">This is the permanent default - all other algorithms are temporary!</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Step 2: Round Robin -->
+            <!-- Step 2: Power-ups and Temporary Algorithms -->
             <div class="bg-gray-800 rounded-lg p-6">
-                <h2 class="text-2xl font-bold text-yellow-400 mb-4">2. Round Robin (RR)</h2>
+                <h2 class="text-2xl font-bold text-yellow-400 mb-4">2. Power-ups & Temporary Algorithms (3 seconds only)</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
-                        <h3 class="text-lg font-semibold mb-3">How it Works:</h3>
+                        <h3 class="text-lg font-semibold mb-3">Available Algorithms:</h3>
                         <ul class="space-y-2 text-gray-300">
-                            <li>• Each process gets fixed time slice</li>
-                            <li>• Preemptive - processes can be interrupted</li>
-                            <li>• Fair time sharing</li>
-                            <li>• Good for interactive systems</li>
+                            <li>• <strong>Round Robin:</strong> Fixed time slices with preemption</li>
+                            <li>• <strong>SJF/SRTF:</strong> Shortest job/remaining time first</li>
+                            <li>• <strong>Priority (Non-Preemptive):</strong> Priority order, no interruption</li>
+                            <li>• <strong>Priority (Preemptive):</strong> Priority with interruption</li>
                         </ul>
                         <div class="mt-4 p-3 bg-yellow-900 rounded">
-                            <strong>Gaming Impact:</strong> Consistent but potentially delayed responses for all entities
+                            <strong>Important:</strong> All non-FCFS algorithms last exactly 3 seconds, then revert to FCFS
                         </div>
                     </div>
                     <div class="bg-gray-700 p-4 rounded">
-                        <h4 class="font-semibold mb-2">What You'll See:</h4>
+                        <h4 class="font-semibold mb-2">How to Activate:</h4>
                         <div class="space-y-2">
-                            <div class="text-sm text-yellow-400">• Time Quantum = 2 seconds</div>
-                            <div class="text-sm text-yellow-400">• Enemy runs for exactly 2s, then FORCED to stop</div>
-                            <div class="text-sm text-yellow-400">• Player gets exactly 2s, then FORCED to stop</div>
-                            <div class="text-sm text-yellow-400">• Next enemy gets 2s, and so on...</div>
-                            <div class="text-sm text-blue-400">• Watch the quantum countdown timer!</div>
+                            <div class="text-sm text-yellow-400">• Collect yellow power-up circles</div>
+                            <div class="text-sm text-yellow-400">• Or select from dropdown menu</div>
+                            <div class="text-sm text-blue-400">• Timer shows remaining time</div>
+                            <div class="text-sm text-green-400">• Automatic revert to FCFS after 3s</div>
                         </div>
-                        <p class="text-xs text-gray-400 mt-2">Fair but not optimal for user interaction</p>
+                        <p class="text-xs text-gray-400 mt-2">Strategy: Use algorithms wisely during critical moments!</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Step 3: Priority -->
+            <!-- Step 3: Difficulty & Lives -->
             <div class="bg-gray-800 rounded-lg p-6">
-                <h2 class="text-2xl font-bold text-green-400 mb-4">3. Priority Scheduling</h2>
+                <h2 class="text-2xl font-bold text-green-400 mb-4">3. Difficulty Levels & Lives System</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
-                        <h3 class="text-lg font-semibold mb-3">How it Works:</h3>
+                        <h3 class="text-lg font-semibold mb-3">Difficulty Affects Time Slices:</h3>
                         <ul class="space-y-2 text-gray-300">
-                            <li>• Higher priority processes execute first</li>
-                            <li>• Player = Priority 1 (highest)</li>
-                            <li>• Enemies = Priority 3 (lowest)</li>
-                            <li>• Can be preemptive or non-preemptive</li>
+                            <li>• <strong>Easy:</strong> 2.9 seconds per turn (more time to think)</li>
+                            <li>• <strong>Normal:</strong> 1.9 seconds per turn (balanced)</li>
+                            <li>• <strong>Hard:</strong> 1.0 second per turn + 1 boss</li>
+                            <li>• <strong>Super Hard:</strong> 1.0 second per turn + 2 bosses</li>
                         </ul>
                         <div class="mt-4 p-3 bg-green-900 rounded">
-                            <strong>Gaming Impact:</strong> Player gets priority - much more responsive gameplay
+                            <strong>Lives System:</strong> 3 lives total. Lose a life when touching enemies. Get first move priority after respawn.
                         </div>
                     </div>
                     <div class="bg-gray-700 p-4 rounded">
-                        <h4 class="font-semibold mb-2">Priority Order:</h4>
+                        <h4 class="font-semibold mb-2">Priority Values:</h4>
                         <div class="space-y-2">
                             <div class="flex items-center">
                                 <div class="w-3 h-6 bg-green-500 rounded mr-2"></div>
-                                <span class="text-sm">Priority 1: Player Input</span>
+                                <span class="text-sm">Priority 1: Player (highest)</span>
                             </div>
                             <div class="flex items-center">
                                 <div class="w-3 h-6 bg-blue-500 rounded mr-2"></div>
-                                <span class="text-sm">Priority 2: Game Logic</span>
+                                <span class="text-sm">Priority 2: Bosses</span>
                             </div>
                             <div class="flex items-center">
                                 <div class="w-3 h-6 bg-red-500 rounded mr-2"></div>
-                                <span class="text-sm">Priority 3: Enemy AI</span>
+                                <span class="text-sm">Priority 3: Regular Enemies (lowest)</span>
                             </div>
                         </div>
+                        <p class="text-xs text-gray-400 mt-2">Priority matters most during Priority scheduling algorithms</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Interactive Exercise -->
+            <!-- Game Strategy -->
             <div class="bg-gray-800 rounded-lg p-6">
-                <h2 class="text-2xl font-bold text-purple-400 mb-4">Interactive Exercise</h2>
+                <h2 class="text-2xl font-bold text-purple-400 mb-4">🎯 Strategy Guide</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
-                        <h3 class="text-lg font-semibold mb-3">Try This:</h3>
+                        <h3 class="text-lg font-semibold mb-3">Winning Tips:</h3>
                         <ol class="space-y-2 text-gray-300 list-decimal list-inside">
-                            <li>Start with FCFS - notice the lag</li>
-                            <li>Switch to Round Robin - feel the consistency</li>
-                            <li>Try Priority scheduling - experience responsiveness</li>
-                            <li>Compare completion times</li>
+                            <li>Plan your moves during enemy turns</li>
+                            <li>Use Priority algorithms when surrounded by enemies</li>
+                            <li>Save power-ups for critical moments</li>
+                            <li>Collect keys before approaching finish line</li>
+                            <li>In hard modes: get swords before fighting bosses</li>
                         </ol>
                         <div class="mt-4">
                             <a href="/" class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded font-semibold">
@@ -138,46 +191,50 @@
                         </div>
                     </div>
                     <div class="bg-gray-700 p-4 rounded">
-                        <h4 class="font-semibold mb-2">Key Observations:</h4>
+                        <h4 class="font-semibold mb-2">Visual Indicators:</h4>
                         <ul class="space-y-2 text-sm text-gray-300">
-                            <li>• <span class="text-red-400">Red rings</span> = High delay (blocked)</li>
-                            <li>• <span class="text-yellow-400">Yellow rings</span> = Medium delay</li>
-                            <li>• <span class="text-green-400">Green rings</span> = Low delay (responsive)</li>
-                            <li>• Process queue shows waiting processes</li>
-                            <li>• Algorithm effects explain current behavior</li>
+                            <li>• <span class="text-green-400">Green circle</span> = Player (you)</li>
+                            <li>• <span class="text-red-400">Red circles</span> = Enemies</li>
+                            <li>• <span class="text-yellow-400">Yellow circles</span> = Power-ups</li>
+                            <li>• <span class="text-cyan-400">Cyan circles</span> = Keys</li>
+                            <li>• <span class="text-gray-400">Gray rectangles</span> = Locks</li>
+                            <li>• <span class="text-blue-400">Colored swords</span> = Boss weapons</li>
+                            <li>• Process queue shows current/waiting processes</li>
                         </ul>
                     </div>
                 </div>
             </div>
 
-            <!-- Real-World Applications -->
+            <!-- Learning Objectives -->
             <div class="bg-gray-800 rounded-lg p-6">
-                <h2 class="text-2xl font-bold text-blue-400 mb-4">Real-World Applications</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <h2 class="text-2xl font-bold text-blue-400 mb-4">📚 What You'll Learn</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-gray-700 p-4 rounded">
-                        <h3 class="font-semibold text-red-400 mb-2">FCFS Usage</h3>
+                        <h3 class="font-semibold text-blue-400 mb-2">CPU Scheduling Concepts</h3>
                         <ul class="text-sm text-gray-300 space-y-1">
-                            <li>• Batch processing systems</li>
-                            <li>• Print job queues</li>
-                            <li>• Simple embedded systems</li>
+                            <li>• Process queues and execution order</li>
+                            <li>• Time slicing and preemption</li>
+                            <li>• Priority-based scheduling</li>
+                            <li>• Context switching overhead</li>
+                            <li>• Algorithm trade-offs</li>
                         </ul>
                     </div>
                     <div class="bg-gray-700 p-4 rounded">
-                        <h3 class="font-semibold text-yellow-400 mb-2">Round Robin Usage</h3>
+                        <h3 class="font-semibold text-green-400 mb-2">Real-World Applications</h3>
                         <ul class="text-sm text-gray-300 space-y-1">
-                            <li>• Time-sharing systems</li>
-                            <li>• Multi-user environments</li>
-                            <li>• Fair resource allocation</li>
+                            <li>• Operating system design</li>
+                            <li>• Game engine optimization</li>
+                            <li>• Real-time system behavior</li>
+                            <li>• Performance analysis</li>
+                            <li>• Resource management</li>
                         </ul>
                     </div>
-                    <div class="bg-gray-700 p-4 rounded">
-                        <h3 class="font-semibold text-green-400 mb-2">Priority Usage</h3>
-                        <ul class="text-sm text-gray-300 space-y-1">
-                            <li>• Real-time systems</li>
-                            <li>• Gaming engines</li>
-                            <li>• Critical system processes</li>
-                        </ul>
-                    </div>
+                </div>
+                <div class="mt-4 p-4 bg-blue-900 rounded">
+                    <p class="text-sm text-blue-100">
+                        <strong>Key Insight:</strong> This game demonstrates why modern operating systems use complex scheduling algorithms instead of simple FCFS. 
+                        Interactive applications need responsive scheduling to provide good user experience!
+                    </p>
                 </div>
             </div>
         </div>
