@@ -83,9 +83,6 @@ class WebScheduler:
         if 0 <= index < len(algorithms):
             self.scheduler = algorithms[index]
             self.current_algorithm_name = self.scheduler['name']
-            # Apply 3-second timer for all non-FCFS algorithms
-            if self.scheduler['type'] != 'fcfs':
-                self.powerup_algorithm_timer = self.powerup_algorithm_duration
     
     def apply_powerup_algorithm(self, algorithm_name):
         """Apply new scheduling algorithm from power-up for 3 seconds"""
