@@ -56,6 +56,11 @@ document.getElementById('startBtn').onclick = () => socket.emit('start_game');
 document.getElementById('pauseBtn').onclick = () => socket.emit('pause_game');
 document.getElementById('resetBtn').onclick = () => socket.emit('reset_game');
 
+// Difficulty selector handler
+document.getElementById('difficultySelect').onchange = (e) => {
+    socket.emit('select_difficulty', {difficulty: e.target.value});
+};
+
 // Algorithm dropdown handler
 document.getElementById('algorithmSelect').onchange = (e) => {
     socket.emit('select_algorithm', {index: parseInt(e.target.value)});
@@ -113,8 +118,7 @@ function updateUI() {
     // Update process table
     updateProcessTable();
     
-    // Update high scores
-    updateHighScores();
+
 }
 
 function updateProcessQueue() {
@@ -243,6 +247,34 @@ function updateOSStatus() {
     schedulerMessageEl.textContent = message;
 }
 
+function drawArcadeBackground() {
+    // Dark gradient background
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#0a0a0a');
+    gradient.addColorStop(0.5, '#1a1a1a');
+    gradient.addColorStop(1, '#0a0a0a');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Neon grid lines
+    ctx.strokeStyle = '#00ffff';
+    ctx.lineWidth = 0.5;
+    ctx.globalAlpha = 0.2;
+    for (let x = 0; x < canvas.width; x += 50) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += 50) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+}
+
 function drawGame() {
     if (!gameState) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -253,6 +285,7 @@ function drawGame() {
     }
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawArcadeBackground();
     
     // Draw start line
     ctx.strokeStyle = '#10B981';
@@ -279,16 +312,16 @@ function drawGame() {
     ctx.font = '14px Arial';
     ctx.fillText(allLocksUnlocked ? 'FINISH' : 'UNLOCK ALL LOCKS', gameState.game.finish_line_x - 35, 370);
     
-    // Draw level and CPU scheduler indicator
+    // Draw difficulty and CPU scheduler indicator
     ctx.fillStyle = '#8B5CF6';
     ctx.font = '12px Arial';
-    ctx.fillText(`LEVEL ${gameState.game.level}/${gameState.game.max_level} - CPU SCHEDULER: ${gameState.scheduler.name}`, 10, 25);
+    ctx.fillText(`DIFFICULTY: ${gameState.game.difficulty.toUpperCase()} - CPU SCHEDULER: ${gameState.scheduler.name}`, 10, 25);
     
-    // Draw boss info if boss level
-    if (gameState.game.boss_level && gameState.game.boss_required_algorithm) {
+    // Draw boss info if bosses present
+    if (gameState.game.bosses_remaining > 0) {
         ctx.fillStyle = '#FF4444';
         ctx.font = '14px Arial';
-        ctx.fillText(`BOSS LEVEL! Use ${gameState.game.boss_required_algorithm} to defeat boss`, 10, 45);
+        ctx.fillText(`BOSSES REMAINING: ${gameState.game.bosses_remaining} - Collect sword to defeat them!`, 10, 45);
     }
     
     // Draw player
@@ -306,30 +339,33 @@ function drawGame() {
     // Draw powerups
     if (gameState.powerups) {
         gameState.powerups.forEach((powerup, index) => {
-            ctx.fillStyle = '#FFD700';
-            ctx.beginPath();
-            ctx.arc(powerup.x, powerup.y, 18, 0, 2 * Math.PI);
-            ctx.fill();
-            
+            const wiggle = Math.sin(Date.now() * 0.01 + index) * 3;
             const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#8A2BE2'];
             ctx.fillStyle = colors[index % colors.length];
-            ctx.font = '20px Arial';
-            ctx.fillText('⚡', powerup.x - 10, powerup.y + 7);
+            ctx.font = '28px Arial';
+            ctx.fillText('⚡', powerup.x - 10 + wiggle, powerup.y + 7);
         });
     }
     
     // Draw keys
     if (gameState.keys) {
         gameState.keys.forEach((key, index) => {
-            ctx.fillStyle = '#000000';
-            ctx.beginPath();
-            ctx.arc(key.x, key.y, 15, 0, 2 * Math.PI);
-            ctx.fill();
-            
+            const wiggle = Math.sin(Date.now() * 0.008 + index * 2) * 2;
             const keyColors = ['#FFD700', '#FF69B4', '#00FF7F'];
             ctx.fillStyle = keyColors[index % keyColors.length];
-            ctx.font = '18px Arial';
-            ctx.fillText('🔑', key.x - 9, key.y + 6);
+            ctx.font = '24px Arial';
+            ctx.fillText('🔑', key.x - 9 + wiggle, key.y + 6);
+        });
+    }
+    
+    // Draw boss items
+    if (gameState.boss_items) {
+        gameState.boss_items.forEach((item, index) => {
+            const wiggle = Math.sin(Date.now() * 0.012 + index) * 4;
+            const swordColor = item.color_type === 'red' ? '#FF0000' : '#0000FF';
+            ctx.fillStyle = swordColor;
+            ctx.font = '32px Arial';
+            ctx.fillText('🗡️', item.x - 12 + wiggle, item.y + 8);
         });
     }
     
@@ -361,6 +397,11 @@ function drawGame() {
     ctx.fillStyle = '#00FFFF';
     ctx.fillText(`Keys: ${gameState.game.keys_collected}/3`, 10, 70);
     
+    if (gameState.game.boss_items_collected !== undefined) {
+        ctx.fillStyle = '#FF69B4';
+        ctx.fillText(`Swords: ${gameState.game.boss_items_collected}`, 10, 90);
+    }
+    
     if (gameState.player.has_powerup) {
         ctx.fillStyle = '#FFD700';
         ctx.fillText(`⚡ POWERUP: ${gameState.game.powerup_time.toFixed(1)}s`, 10, 130);
@@ -378,8 +419,8 @@ function drawGame() {
         
         ctx.fillStyle = '#FFFFFF';
         ctx.font = '18px Arial';
-        ctx.fillText(`Level ${gameState.game.level} Complete!`, canvas.width/2, 200);
-        ctx.fillText(`Time: ${gameState.game.current_level_time.toFixed(1)}s`, canvas.width/2, 230);
+        ctx.fillText(`${gameState.game.difficulty.toUpperCase()} Mode Complete!`, canvas.width/2, 200);
+        ctx.fillText(`Time: ${gameState.game.current_game_time.toFixed(1)}s`, canvas.width/2, 230);
         ctx.fillText(`Algorithm: ${gameState.scheduler.name}`, canvas.width/2, 260);
         
         // Show if new record
@@ -516,47 +557,7 @@ function updateCurrentStats() {
     }
 }
 
-function updateHighScores() {
-    if (!gameState?.game?.high_scores) return;
-    
-    const highScoresDiv = document.getElementById('highScores');
-    const scores = gameState.game.high_scores;
-    
-    if (Object.keys(scores).length === 0) {
-        highScoresDiv.innerHTML = '<div class="text-center text-gray-400 py-2">Complete levels to set records!</div>';
-        return;
-    }
-    
-    let html = '';
-    for (let i = 1; i <= 5; i++) {
-        const levelKey = `level_${i}`;
-        if (scores[levelKey] && scores[levelKey].time !== Infinity) {
-            const time = scores[levelKey].time.toFixed(1);
-            const algo = scores[levelKey].algorithm;
-            const isCurrentLevel = i === gameState.game.level;
-            
-            html += `
-                <div class="flex justify-between items-center py-1 ${isCurrentLevel ? 'bg-blue-900 px-2 rounded' : ''}">
-                    <span class="${isCurrentLevel ? 'text-yellow-400 font-bold' : 'text-gray-300'}">Level ${i}:</span>
-                    <div class="text-right">
-                        <div class="${isCurrentLevel ? 'text-white font-bold' : 'text-green-400'}">${time}s</div>
-                        <div class="text-xs text-gray-400">${algo}</div>
-                    </div>
-                </div>
-            `;
-        } else {
-            const isCurrentLevel = i === gameState.game.level;
-            html += `
-                <div class="flex justify-between items-center py-1 ${isCurrentLevel ? 'bg-blue-900 px-2 rounded' : ''}">
-                    <span class="${isCurrentLevel ? 'text-yellow-400 font-bold' : 'text-gray-500'}">Level ${i}:</span>
-                    <span class="text-gray-500">Not completed</span>
-                </div>
-            `;
-        }
-    }
-    
-    highScoresDiv.innerHTML = html;
-}
+
 
 function updateProcessTable() {
     if (!gameState?.process_table) return;

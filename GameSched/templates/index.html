@@ -71,6 +71,17 @@
 
             <!-- Control Panel -->
             <div class="space-y-6">
+                <!-- Difficulty Selector -->
+                <div class="bg-gray-800 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold mb-3">Game Difficulty</h3>
+                    <select id="difficultySelect" class="w-full bg-gray-700 text-white p-3 rounded mb-3 border border-gray-600 font-semibold">
+                        <option value="easy">Easy (7 enemies)</option>
+                        <option value="normal">Normal (12 enemies)</option>
+                        <option value="hard">Hard (1 boss + 7 enemies)</option>
+                        <option value="super_hard">Super Hard (2 bosses)</option>
+                    </select>
+                </div>
+                
                 <!-- Algorithm Selector -->
                 <div class="bg-gray-800 rounded-lg p-4">
                     <h3 class="text-lg font-semibold mb-3">CPU Scheduling Algorithm</h3>
@@ -145,18 +156,7 @@
                     </div>
                 </div>
                 
-                <!-- High Scores -->
-                <div class="bg-gray-800 rounded-lg p-4">
-                    <h3 class="text-lg font-semibold mb-3 flex items-center">
-                        <span class="text-yellow-400 mr-2">🏆</span>
-                        High Scores
-                    </h3>
-                    <div id="highScores" class="space-y-1 text-sm max-h-48 overflow-y-auto">
-                        <div class="text-center text-gray-400 py-2">
-                            Complete levels to set records!
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </div>
         

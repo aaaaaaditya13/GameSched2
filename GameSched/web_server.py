@@ -46,6 +46,14 @@ def handle_connect():
     print("Client connected, sending initial game state")
     emit('game_update', game_controller.game.get_state())
 
+@socketio.on('select_difficulty')
+def handle_select_difficulty(data):
+    difficulty = data['difficulty']
+    game_controller.game = WebLineCrossingGame(difficulty)
+    game_controller.running = False
+    game_controller.paused = False
+    emit('game_update', game_controller.game.get_state())
+
 @socketio.on('start_game')
 def handle_start_game():
     if not game_controller.running:

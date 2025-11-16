@@ -8,8 +8,8 @@
     "algorithm": "First Come First Serve"
   },
   "level_3": {
-    "time": 19.739247798919678,
-    "algorithm": "Round Robin"
+    "time": 12.99327039718628,
+    "algorithm": "Shortest Job First"
   },
   "level_4": {
     "time": 10.733734369277954,
