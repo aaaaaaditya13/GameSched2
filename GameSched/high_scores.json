@@ -6,5 +6,17 @@
   "level_2": {
     "time": 12.590757846832275,
     "algorithm": "First Come First Serve"
+  },
+  "level_3": {
+    "time": 19.739247798919678,
+    "algorithm": "Round Robin"
+  },
+  "level_4": {
+    "time": 10.733734369277954,
+    "algorithm": "Shortest Job First"
+  },
+  "level_5": {
+    "time": 9.732196569442749,
+    "algorithm": "Round Robin"
   }
 }
